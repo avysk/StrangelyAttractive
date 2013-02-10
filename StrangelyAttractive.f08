@@ -15,7 +15,7 @@ INTEGER, PARAMETER :: init_iterations = 1000
 ! Skip that many generations before starting to calculate Lyapunov exponents
 INTEGER, PARAMETER :: skip_iterations = 50
 ! Total number of iterations to calculate
-INTEGER, PARAMETER :: total_iterations = 2000000
+INTEGER, PARAMETER :: total_iterations = 5000000 + init_iterations
 ! The last iteration to draw
 INTEGER, PARAMETER :: last_draw_iteration = 20000
 ! Check at this step if boring
@@ -56,30 +56,31 @@ LOGICAL :: again = .TRUE.
 LOGICAL :: err = .FALSE.
 
 ! Quadratic map
-INTERFACE
-    SUBROUTINE QUADRATIC_STEP(a, x, y)
+INTERFACE QUADRATIC_STEP
+    PURE SUBROUTINE QUADRATIC_STEP(a, x, y)
         REAL, DIMENSION(12), INTENT(IN) :: a
         REAL, INTENT(INOUT) :: x, y
     END SUBROUTINE QUADRATIC_STEP
-END INTERFACE
+END INTERFACE QUADRATIC_STEP
+
 ! And its linearization
-INTERFACE
-    SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
+INTERFACE LINEAR_STEP
+    PURE SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
         REAL, DIMENSION(12), INTENT(IN) :: a
         REAL, INTENT(IN) :: x, y
         REAL, DIMENSION(2), INTENT(INOUT) :: e1, e2
         REAL, INTENT(OUT) :: n1, n2
     END SUBROUTINE LINEAR_STEP
-END INTERFACE
+END INTERFACE LINEAR_STEP
 
 ! Drawing
-INTERFACE
+INTERFACE DRAW
     FUNCTION DRAW(m, x, y)
     LOGICAL DRAW
     INTEGER, INTENT(IN) :: m
     REAL, DIMENSION(:), INTENT(IN) :: x, y
     END FUNCTION DRAW
-END INTERFACE
+END INTERFACE DRAW
 
 CALL RANDOM_SEED()
 
@@ -129,7 +130,7 @@ main_loop: DO WHILE (again)
             l_exp2 = l_acc2 / check / log2
             boring: IF (MAX(l_exp1, l_exp2) < l_epsilon) THEN
                 WRITE (*, '(A)', ADVANCE='NO') 'Current Lyapunov exponents:'
-                WRITE (*, '(1X, F5.2, 1X, F5.2)'), l_exp1, l_exp2
+                WRITE (*, '(1X, F5.2, 1X, F5.2)') l_exp1, l_exp2
                 WRITE (*, '(A)') 'Boring.'
                 err = .TRUE.
                 EXIT iterations
@@ -144,8 +145,8 @@ main_loop: DO WHILE (again)
 
     WRITE (*, '(A)') '*****************************************************'
     WRITE (*, '(A)') 'Parameters used:'
-    WRITE (*, '(4X 6(F6.2))') ( a(i), i=1,6 )
-    WRITE (*, '(4X 6(F6.2))') ( a(i), i=7,12 )
+    WRITE (*, '(4X, 6(F6.2))') ( a(i), i=1,6 )
+    WRITE (*, '(4X, 6(F6.2))') ( a(i), i=7,12 )
     l_exp1 = l_acc1 / l_total / log2
     l_exp2 = l_acc2 / l_total / log2
     WRITE (*, '(A)', ADVANCE='NO') 'Lyapunov exponents:'
@@ -180,19 +181,5 @@ main_loop: DO WHILE (again)
                  points_y(init_iterations+1:))
 
 END DO main_loop
-
-CONTAINS
-
-FUNCTION RUN_AGAIN()
-LOGICAL RUN_AGAIN
-CHARACTER(1) :: s
-WRITE (*, '(A)', ADVANCE='NO') "Try again [Y/N]? "
-READ (*, *) s
-IF ((s == 'Y') .OR. (s == 'y')) THEN
-    RUN_AGAIN = .TRUE.
-ELSE
-    RUN_AGAIN = .FALSE.
-END IF
-END FUNCTION
 
 END PROGRAM StrangelyAttractive

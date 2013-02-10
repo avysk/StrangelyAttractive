@@ -1,4 +1,4 @@
-SUBROUTINE QUADRATIC_STEP(a, x, y)
+PURE SUBROUTINE QUADRATIC_STEP(a, x, y)
 IMPLICIT NONE
 ! Inputs:
 ! a -- 12 coefficients for quadratic map
@@ -20,7 +20,7 @@ IMPLICIT NONE
 
 END SUBROUTINE QUADRATIC_STEP
 
-SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
+PURE SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
 IMPLICIT NONE
 ! Inputs:
 ! a -- 12 coefficients for quadratic map
@@ -51,7 +51,7 @@ IMPLICIT NONE
     CONTAINS
 
     ! Jacobian
-    FUNCTION J(a, x, y)
+    PURE FUNCTION J(a, x, y)
         IMPLICIT NONE
         REAL, DIMENSION(2, 2) :: J
         REAL, DIMENSION(12), INTENT(IN) :: a
@@ -69,12 +69,5 @@ IMPLICIT NONE
         J(2,1) = dYx
         J(2,2) = dYy
     END FUNCTION J
-
-    ! Built-in in Fortran 2008
-    FUNCTION NORM2(V)
-        REAL :: NORM2
-        REAL, DIMENSION(2), INTENT(IN) :: V
-        NORM2 = SQRT(V(1)**2 + V(2)**2)
-    END FUNCTION NORM2
 
 END SUBROUTINE LINEAR_STEP

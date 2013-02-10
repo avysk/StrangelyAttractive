@@ -58,10 +58,10 @@ IMPLICIT NONE
         CALL PGPT(m, x(:m), y(:m), -1)
 
         WRITE (*, '(I10, A)') m, ' points plotted'
-        WRITE(*, '(A)') '[F]ind next map (default)'
-        WRITE(*, '(A)') 'Change the [N]umber of points to plot'
-        WRITE(*, '(A)') 'Select different drawing [D]evice'
-        WRITE(*, '(A)') '[Q]uit'
+        WRITE(*, '(A)') 'F: [F]ind next map (default)'
+        WRITE(*, '(A)') 'N: Change the [N]umber of points to plot'
+        WRITE(*, '(A)') 'D: Select different drawing [D]evice'
+        WRITE(*, '(A)') 'Q: [Q]uit'
         WRITE (*, '(A)', ADVANCE='NO') '=> '
         READ (*, *) reply
 
@@ -76,6 +76,7 @@ IMPLICIT NONE
                 WRITE (*, '(I10, A)') m, ' poins will be drawn'
             CASE ('d', 'D')
                 do_init = .TRUE.
+                CALL PGCLOS
             CASE ('q', 'Q')
                 DRAW = .FALSE.
                 again = .FALSE.

@@ -1,9 +1,9 @@
-FORTRAN=/opt/local/bin/gfortran-mp-4.5
+FORTRAN=/opt/local/bin/gfortran-mp-4.7 -pedantic -Wall -std=f2008
 LIBPGPLOT=-L/opt/local/lib -lpgplot
 
 all: StrangelyAttractive
 
-SOURCES=StrangelyAttractive.f95 Draw.f95 QuadraticMap.f95
+SOURCES=StrangelyAttractive.f08 Draw.f08 QuadraticMap.f08
 OBJECTS=$(SOURCES:.f95=.o)
 
 StrangelyAttractive: $(OBJECTS)
