@@ -15,14 +15,29 @@ IMPLICIT NONE
 
     REAL :: xmin, xmax, ymin, ymax, deltax, deltay
 
-    LOGICAL :: do_init, again
+    LOGICAL :: do_init, reset_limits, again
 
     m = m0
     n = SIZE(x)
     do_init = .TRUE.
+    reset_limits = .TRUE.
     again = .TRUE.
 
     drawing: DO WHILE (again)
+
+        setup_limits: IF (reset_limits) THEN
+            xmin = MINVAL(x)
+            xmax = MAXVAL(x)
+            ymin = MINVAL(y)
+            ymax = MAXVAL(y)
+            deltax = space * (xmax - xmin)
+            deltay = space * (ymax - ymin)
+            xmin = xmin - deltax
+            xmax = xmax + deltax
+            ymin = ymin - deltay
+            ymax = ymax + deltay
+            reset_limits = .FALSE.
+        END IF setup_limits
 
         ! Init pgplot library
         IF (do_init) THEN
@@ -42,16 +57,6 @@ IMPLICIT NONE
             END BLOCK init
         END IF
 
-        xmin = MINVAL(x)
-        xmax = MAXVAL(x)
-        ymin = MINVAL(y)
-        ymax = MAXVAL(y)
-        deltax = space * (xmax - xmin)
-        deltay = space * (ymax - ymin)
-        xmin = xmin - deltax
-        xmax = xmax + deltax
-        ymin = ymin - deltay
-        ymax = ymax + deltay
 
         CALL PGBBUF
 
@@ -70,10 +75,12 @@ IMPLICIT NONE
         CALL PGEBUF
 
         WRITE (*, '(I10, A)') m, ' points plotted'
-        WRITE(*, '(A)') 'F: [F]ind next map (default)'
-        WRITE(*, '(A)') 'N: Change the [N]umber of points to plot'
-        WRITE(*, '(A)') 'D: Select different drawing [D]evice'
-        WRITE(*, '(A)') 'Q: [Q]uit'
+        WRITE (*, '(A)') 'F: [F]ind next map (default)'
+        WRITE (*, '(A)') 'N: Change the [N]umber of points to plot'
+        WRITE (*, '(A)') 'D: Select different drawing [D]evice'
+        WRITE (*, '(A)') 'L: Change X/Y limits'
+        WRITE (*, '(A)') 'R: Reset X/Y limits'
+        WRITE (*, '(A)') 'Q: [Q]uit'
         WRITE (*, '(A)', ADVANCE='NO') '=> '
 
         prompt: BLOCK
@@ -96,6 +103,17 @@ IMPLICIT NONE
                 CASE ('q', 'Q')
                     DRAW = .FALSE.
                     again = .FALSE.
+                CASE ('l', 'L')
+                    WRITE (*, '(A)', ADVANCE='NO') 'Xmin: '
+                    READ (*, *) xmin
+                    WRITE (*, '(A)', ADVANCE='NO') 'Xmax: '
+                    READ (*, *) xmax
+                    WRITE (*, '(A)', ADVANCE='NO') 'Ymin: '
+                    READ (*, *) ymin
+                    WRITE (*, '(A)', ADVANCE='NO') 'Ymax: '
+                    READ (*, *) ymax
+                CASE ('r', 'R')
+                    reset_limits = .TRUE.
                 CASE DEFAULT
                     DRAW = .TRUE.
                     again = .FALSE.
