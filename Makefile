@@ -1,9 +1,18 @@
+FORTRAN=/opt/local/bin/gfortran-mp-4.5
+LIBPGPLOT=-L/opt/local/lib -lpgplot
+
 all: StrangelyAttractive
 
-StrangelyAttractive: StrangelyAttractive.f95
-	/opt/local/bin/gfortran-mp-4.5 -L/opt/local/lib -lpgplot -o "StrangelyAttractive" StrangelyAttractive.f95
+SOURCES=StrangelyAttractive.f95 Draw.f95
+OBJECTS=$(SOURCES:.f95=.o)
+
+StrangelyAttractive: $(OBJECTS)
+	$(FORTRAN) $(LIBPGPLOT) -o StrangelyAttractive $(OBJECTS)
+
+$(OBJECTS): %.o: %.f95
+	$(FORTRAN) -c $< -o $@
 
 clean:
-	rm -rf StrangelyAttractive
+	rm -rf StrangelyAttractive *.o
 
 .PHONY: all clean
