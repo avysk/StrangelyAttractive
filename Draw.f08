@@ -53,6 +53,8 @@ IMPLICIT NONE
         ymin = ymin - deltay
         ymax = ymax + deltay
 
+        CALL PGBBUF
+
         CALL PGENV(xmin, xmax, ymin, ymax, 0, 0)
 
         ! We want black on white
@@ -64,6 +66,8 @@ IMPLICIT NONE
 
         WRITE (*, '(A)') 'Drawing, please wait (this takes time!)'
         CALL PGPT(m, x(:m), y(:m), -1)
+
+        CALL PGEBUF
 
         WRITE (*, '(I10, A)') m, ' points plotted'
         WRITE(*, '(A)') 'F: [F]ind next map (default)'
