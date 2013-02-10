@@ -16,6 +16,7 @@ IMPLICIT NONE
     REAL :: xmin, xmax, ymin, ymax, deltax, deltay
 
     LOGICAL :: do_init, reset_limits, again
+    LOGICAL :: do_box = .TRUE.
 
     m = m0
     n = SIZE(x)
@@ -66,8 +67,11 @@ IMPLICIT NONE
         CALL PGSCR(0, 1., 1., 1.)
         CALL PGSCR(1, 0., 0., 0.)
         CALL PGERAS
-        ! We just erased coordinate box; redraw it
-        CALL PGBOX('BCNST', 0.0, 0, 'BCNST', 0.0, 0)
+
+        coordinates: IF (do_box) THEN
+            ! We just erased coordinate box; redraw it
+            CALL PGBOX('BCNST', 0.0, 0, 'BCNST', 0.0, 0) 
+        END IF coordinates
 
         WRITE (*, '(A)') 'Drawing, please wait (this takes time!)'
         CALL PGPT(m, x(:m), y(:m), -1)
@@ -78,8 +82,9 @@ IMPLICIT NONE
         WRITE (*, '(A)') 'F: [F]ind next map (default)'
         WRITE (*, '(A)') 'N: Change the [N]umber of points to plot'
         WRITE (*, '(A)') 'D: Select different drawing [D]evice'
-        WRITE (*, '(A)') 'L: Change X/Y limits'
-        WRITE (*, '(A)') 'R: Reset X/Y limits'
+        WRITE (*, '(A)') 'L: Change X/Y [L]imits'
+        WRITE (*, '(A)') 'R: [R]eset X/Y limits'
+        WRITE (*, '(A)') 'S: [S]witch coordinates on/off'
         WRITE (*, '(A)') 'Q: [Q]uit'
         WRITE (*, '(A)', ADVANCE='NO') '=> '
 
@@ -114,6 +119,8 @@ IMPLICIT NONE
                     READ (*, *) ymax
                 CASE ('r', 'R')
                     reset_limits = .TRUE.
+                CASE ('s', 'S')
+                    do_box = .NOT. do_box
                 CASE DEFAULT
                     DRAW = .TRUE.
                     again = .FALSE.
