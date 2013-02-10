@@ -82,7 +82,18 @@ INTERFACE DRAW
     END FUNCTION DRAW
 END INTERFACE DRAW
 
-CALL RANDOM_SEED()
+seed: BLOCK
+    INTEGER :: seed_size
+    INTEGER, ALLOCATABLE :: seed(:)
+    INTEGER :: user_seed
+    CALL RANDOM_SEED(size=seed_size)
+    ALLOCATE(seed(seed_size))
+    WRITE (*, '(A)', ADVANCE='NO') 'Enter random integer seed: '
+    READ (*, *) user_seed
+    seed = user_seed
+    CALL RANDOM_SEED(put=seed)
+    DEALLOCATE(seed)
+END BLOCK seed
 
 main_loop: DO WHILE (again)
     ! Initialize coefficients
