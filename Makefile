@@ -5,12 +5,12 @@ LIBPGPLOT=-L/opt/local/lib -lpgplot
 all: StrangelyAttractive
 
 SOURCES=StrangelyAttractive.f08 Draw.f08 QuadraticMap.f08
-OBJECTS=$(SOURCES:.f95=.o)
+OBJECTS=$(SOURCES:.f08=.o)
 
 StrangelyAttractive: $(OBJECTS)
 	$(FORTRAN) $(FFLAGS) $(LIBPGPLOT) -o StrangelyAttractive $(OBJECTS)
 
-$(OBJECTS): %.o: %.f95
+$(OBJECTS): %.o: %.f08
 	$(FORTRAN) $(FFLAGS) -c $< -o $@
 
 clean:
