@@ -74,10 +74,11 @@ END INTERFACE
 
 ! Drawing
 INTERFACE
-    SUBROUTINE DRAW(m, x, y)
+    FUNCTION DRAW(m, x, y)
+    LOGICAL DRAW
     INTEGER, INTENT(IN) :: m
     REAL, DIMENSION(:), INTENT(IN) :: x, y
-    END SUBROUTINE DRAW
+    END FUNCTION DRAW
 END INTERFACE
 
 CALL RANDOM_SEED()
@@ -174,12 +175,9 @@ main_loop: DO WHILE (again)
     WRITE (*, '(A)') '*****************************************************'
 
     ! We found it. Go to visualization.
-    CALL DRAW(last_draw_iteration - init_iterations, &
-              points_x(init_iterations+1:), &
-              points_y(init_iterations+1:))
-
-    ! Do it again?
-    again = RUN_AGAIN()
+    again = DRAW(last_draw_iteration - init_iterations, &
+                 points_x(init_iterations+1:), &
+                 points_y(init_iterations+1:))
 
 END DO main_loop
 
