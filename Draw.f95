@@ -1,8 +1,8 @@
-SUBROUTINE DRAW(n, x, y)
+SUBROUTINE DRAW(m, x, y)
 IMPLICIT NONE
 
-INTEGER, INTENT(IN) :: n
-REAL, DIMENSION(n), INTENT(IN) :: x, y
+INTEGER, INTENT(IN) :: m
+REAL, DIMENSION(:), INTENT(IN) :: x, y
 
 ! add that amount of space around the drawing
 REAL, PARAMETER :: space = 0.05
@@ -36,7 +36,7 @@ CALL PGERAS
 CALL PGBOX('BCNST', 0.0, 0, 'BCNST', 0.0, 0)
 
 WRITE (*, '(A)') 'Drawing, please wait (this takes time!)'
-CALL PGPT(n, x, y, -1)
+CALL PGPT(m, x(:m), y(:m), -1)
 
 CALL PGEND
 

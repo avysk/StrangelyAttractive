@@ -14,8 +14,10 @@ INTEGER, PARAMETER :: unbound_limit = 1000000
 INTEGER, PARAMETER :: init_iterations = 1000
 ! Skip that many generations before starting to calculate Lyapunov exponents
 INTEGER, PARAMETER :: skip_iterations = 50
-! Total number of iterations
-INTEGER, PARAMETER :: total_iterations = 20000
+! Total number of iterations to calculate
+INTEGER, PARAMETER :: total_iterations = 2000000
+! The last iteration to draw
+INTEGER, PARAMETER :: last_draw_iteration = 20000
 ! Check at this step if boring
 INTEGER, PARAMETER :: boring_check = 10000
 ! Consider Lyapunov exponent negative, if smaller than this
@@ -33,14 +35,13 @@ REAL, DIMENSION(total_iterations) :: points_x
 REAL, DIMENSION(total_iterations) :: points_y
 
 ! Lyaupunov exponents stuff
-! Jacobian
-REAL, DIMENSION(2, 2) :: jacobian
 ! Tangent space basis
 REAL, DIMENSION(2) :: e1, e2
 ! Temprorary variables
-REAL, DIMENSION(2) :: e2turned
 REAL :: n1, n2
 REAL :: l_acc1, l_acc2
+! Fixing factor for logarithm
+REAL :: log2 = LOG(2.)
 ! 'Boring check' total steps
 INTEGER, PARAMETER :: check = &
                       boring_check - init_iterations - skip_iterations
@@ -54,11 +55,29 @@ INTEGER :: i, n
 LOGICAL :: again = .TRUE.
 LOGICAL :: err = .FALSE.
 
+! Quadratic map
 INTERFACE
-    SUBROUTINE DRAW(n, x, y)
-    INTEGER, INTENT(IN) :: n
-    REAL, DIMENSION(n), INTENT(IN) :: x, y
-    END SUBROUTINE
+    SUBROUTINE QUADRATIC_STEP(a, x, y)
+        REAL, DIMENSION(12), INTENT(IN) :: a
+        REAL, INTENT(INOUT) :: x, y
+    END SUBROUTINE QUADRATIC_STEP
+END INTERFACE
+! And its linearization
+INTERFACE
+    SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
+        REAL, DIMENSION(12), INTENT(IN) :: a
+        REAL, INTENT(IN) :: x, y
+        REAL, DIMENSION(2), INTENT(INOUT) :: e1, e2
+        REAL, INTENT(OUT) :: n1, n2
+    END SUBROUTINE LINEAR_STEP
+END INTERFACE
+
+! Drawing
+INTERFACE
+    SUBROUTINE DRAW(m, x, y)
+    INTEGER, INTENT(IN) :: m
+    REAL, DIMENSION(:), INTENT(IN) :: x, y
+    END SUBROUTINE DRAW
 END INTERFACE
 
 CALL RANDOM_SEED()
@@ -84,15 +103,7 @@ main_loop: DO WHILE (again)
 
         ! Iterate tangent space basis, if needed
         IF (n > init_iterations) THEN
-            jacobian = J(a, x, y)
-            e1 = MATMUL(jacobian, e1)
-            e2 = MATMUL(jacobian, e2)
-            ! Now perform reorthonormalization
-            n1 = NORM2(e1)
-            e1 = e1 / n1
-            e2turned = e2 - DOT_PRODUCT(e2, e1) * e1
-            n2 = NORM2(e2turned)
-            e2 = e2turned / n2
+            CALL LINEAR_STEP(a, x, y, e1, e2, n1, n2)
             ! Record exponents if needed
             sum: IF (n > init_iterations + skip_iterations) THEN
                 l_acc1 = l_acc1 + LOG(n1)
@@ -101,7 +112,7 @@ main_loop: DO WHILE (again)
         END IF
 
         ! Step to the next point
-        CALL ITERATION(a, x, y)
+        CALL QUADRATIC_STEP(a, x, y)
         points_x(n) = x
         points_y(n) = y
 
@@ -113,8 +124,8 @@ main_loop: DO WHILE (again)
 
         ! Check if boring
         IF (n == boring_check) THEN
-            l_exp1 = l_acc1 / check
-            l_exp2 = l_acc2 / check
+            l_exp1 = l_acc1 / check / log2
+            l_exp2 = l_acc2 / check / log2
             boring: IF (MAX(l_exp1, l_exp2) < l_epsilon) THEN
                 WRITE (*, '(A)', ADVANCE='NO') 'Current Lyapunov exponents:'
                 WRITE (*, '(1X, F5.2, 1X, F5.2)'), l_exp1, l_exp2
@@ -134,10 +145,11 @@ main_loop: DO WHILE (again)
     WRITE (*, '(A)') 'Parameters used:'
     WRITE (*, '(4X 6(F6.2))') ( a(i), i=1,6 )
     WRITE (*, '(4X 6(F6.2))') ( a(i), i=7,12 )
-    l_exp1 = l_acc1 / l_total
-    l_exp2 = l_acc2 / l_total
+    l_exp1 = l_acc1 / l_total / log2
+    l_exp2 = l_acc2 / l_total / log2
     WRITE (*, '(A)', ADVANCE='NO') 'Lyapunov exponents:'
-    WRITE (*, '(1X, F5.2, 1X, F5.2)'), l_exp1, l_exp2
+    WRITE (*, '(1X, F5.2, A, 1X, F5.2, A)') l_exp1, ' bits/iteration', &
+                                            l_exp2, ' bits/iteration'
 
     IF (l_exp1 < l_epsilon) THEN
         WRITE(*, '(A)') 'Boring.'
@@ -162,7 +174,7 @@ main_loop: DO WHILE (again)
     WRITE (*, '(A)') '*****************************************************'
 
     ! We found it. Go to visualization.
-    CALL DRAW(total_iterations - init_iterations, &
+    CALL DRAW(last_draw_iteration - init_iterations, &
               points_x(init_iterations+1:), &
               points_y(init_iterations+1:))
 
@@ -171,49 +183,7 @@ main_loop: DO WHILE (again)
 
 END DO main_loop
 
-
 CONTAINS
-
-! Built-in in Fortran 2008
-FUNCTION NORM2(V)
-REAL :: NORM2
-REAL, DIMENSION(2), INTENT(IN) :: V
-NORM2 = SQRT(V(1)**2 + V(2)**2)
-END FUNCTION NORM2
-
-FUNCTION J(a, x, y)
-REAL, DIMENSION(2, 2) :: J
-REAL, DIMENSION(12), INTENT(IN) :: a
-REAL, INTENT(IN) :: x, y
-
-REAL :: dXx, dXy, dYx, dYy
-
-dXx = a(2) + a(4) * y + 2 * a(5) * x
-dXy = a(3) + a(4) * x + 2 * a(6) * y
-dYx = a(8) + a(10) * y + 2 * a(11) * x
-dYy = a(9) + a(10) * x + 2 * a(12) * y
-
-J(1,1) = dXx
-J(1,2) = dXy
-J(2,1) = dYx
-J(2,2) = dYy
-
-END FUNCTION J
-
-SUBROUTINE ITERATION(a, x, y)
-REAL, DIMENSION(12), INTENT(in) :: a
-REAL, INTENT(inout) :: x, y
-REAL :: tmp, xy, x2, y2
-
-xy = x * y
-x2 = x ** 2
-y2 = y ** 2
-
-tmp = a(1) + a(2) * x + a(3) * y + a(4) * xy + a(5) * x2 + a(6) * y2
-y = a(7) + a(8) * x + a(9) * y + a(10) * xy + a(11) * x2 + a(12) * y2
-x = tmp
-
-END SUBROUTINE ITERATION
 
 FUNCTION RUN_AGAIN()
 LOGICAL RUN_AGAIN

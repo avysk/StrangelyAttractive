@@ -34,10 +34,12 @@ You can edit parameters in the beginning of `StrangelyAttractive.f95`:
   shown (boring...)
 - `x0` and `y0` -- the initial point; I doubt you can get any different
   behaviour by changing it
-- `total_iterations` -- the amount of points to iterate (in the drawing the
+- `total_iterations` -- the number of iterations to calculate; you probably
+  do not want to touch this, unless your machine is really slow
+- `last_draw_iteration` -- the last iteration to draw (in the drawing the
   first `init_iterations` will be skipped). Increasing this value up to, say,
   500000, will usually produce really nice pictures, but the drawing will take
   a lot of time (but if you use png renderer and not on-screen one, it's
-  very fast)
+  very fast). Should be less or equal than total_iterations.
 
 Do not touch anything else.

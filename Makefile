@@ -3,7 +3,7 @@ LIBPGPLOT=-L/opt/local/lib -lpgplot
 
 all: StrangelyAttractive
 
-SOURCES=StrangelyAttractive.f95 Draw.f95
+SOURCES=StrangelyAttractive.f95 Draw.f95 QuadraticMap.f95
 OBJECTS=$(SOURCES:.f95=.o)
 
 StrangelyAttractive: $(OBJECTS)
