@@ -15,4 +15,7 @@ $(OBJECTS): %.o: %.f95
 clean:
 	rm -rf StrangelyAttractive *.o
 
-.PHONY: all clean
+run: all
+	PGPLOT_PNG_WIDTH=1680 PGPLOT_PNG_HEIGHT=1050 ./StrangelyAttractive
+
+.PHONY: all clean run
