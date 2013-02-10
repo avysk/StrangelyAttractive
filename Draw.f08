@@ -15,10 +15,7 @@ IMPLICIT NONE
 
     REAL :: xmin, xmax, ymin, ymax, deltax, deltay
 
-    INTEGER :: ier, PGBEG
-
     LOGICAL :: do_init, again
-    CHARACTER(LEN=1) :: reply
 
     m = m0
     n = SIZE(x)
@@ -28,11 +25,22 @@ IMPLICIT NONE
     drawing: DO WHILE (again)
 
         ! Init pgplot library
-        init: IF (do_init) THEN
-            ier = PGBEG(0, '?', 1, 1)
-            if (ier /= 1) STOP
-            do_init = .FALSE.
-        END IF init
+        IF (do_init) THEN
+            init: BLOCK
+                INTEGER :: ier
+                INTERFACE PGBEG
+                    FUNCTION PGBEG(ignored, device, nxsub, nysub)
+                        INTEGER :: PGBEG
+                        INTEGER, INTENT(IN) :: ignored
+                        CHARACTER*(*), INTENT(IN) :: device
+                        INTEGER, INTENT(IN) :: nxsub, nysub
+                    END FUNCTION PGBEG
+                END INTERFACE PGBEG
+                ier = PGBEG(0, '?', 1, 1)
+                if (ier /= 1) STOP 'Cannot open output device'
+                do_init = .FALSE.
+            END BLOCK init
+        END IF
 
         xmin = MINVAL(x)
         xmax = MAXVAL(x)
@@ -63,27 +71,32 @@ IMPLICIT NONE
         WRITE(*, '(A)') 'D: Select different drawing [D]evice'
         WRITE(*, '(A)') 'Q: [Q]uit'
         WRITE (*, '(A)', ADVANCE='NO') '=> '
-        READ (*, *) reply
 
-        SELECT CASE (reply)
-            CASE ('n', 'N')
-                WRITE (*, '(I10, A)', ADVANCE='NO') n, &
-                      ' data points available, how many to plot? '
-                READ (*, *) m
-                sanity: IF (m > n) THEN
-                    m = n
-                END IF sanity
-                WRITE (*, '(I10, A)') m, ' poins will be drawn'
-            CASE ('d', 'D')
-                do_init = .TRUE.
-                CALL PGCLOS
-            CASE ('q', 'Q')
-                DRAW = .FALSE.
-                again = .FALSE.
-            CASE DEFAULT
-                DRAW = .TRUE.
-                again = .FALSE.
-        END SELECT
+        prompt: BLOCK
+            CHARACTER(LEN=1) :: reply
+
+            READ (*, *) reply
+
+            SELECT CASE (reply)
+                CASE ('n', 'N')
+                    WRITE (*, '(I10, A)', ADVANCE='NO') n, &
+                          ' data points available, how many to plot? '
+                    READ (*, *) m
+                    sanity: IF (m > n) THEN
+                        m = n
+                    END IF sanity
+                    WRITE (*, '(I10, A)') m, ' poins will be drawn'
+                CASE ('d', 'D')
+                    do_init = .TRUE.
+                    CALL PGCLOS
+                CASE ('q', 'Q')
+                    DRAW = .FALSE.
+                    again = .FALSE.
+                CASE DEFAULT
+                    DRAW = .TRUE.
+                    again = .FALSE.
+            END SELECT
+        END BLOCK prompt
 
     END DO drawing
 

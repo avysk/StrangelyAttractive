@@ -96,8 +96,8 @@ main_loop: DO WHILE (again)
     ! Initialize Lyapunov exponents stuff
     l_acc1 = 0
     l_acc2 = 0
-    e1 = (/ 1., 0. /)
-    e2 = (/ 0., 1. /)
+    e1 = [1., 0.]
+    e2 = [0., 1.]
 
     err = .FALSE.
 
