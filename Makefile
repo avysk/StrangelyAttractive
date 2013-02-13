@@ -4,17 +4,22 @@ LIBPGPLOT=-L/opt/local/lib -lpgplot
 
 all: StrangelyAttractive
 
-SOURCES=StrangelyAttractive.f08 Draw.f08 QuadraticMap.f08
-OBJECTS=$(SOURCES:.f08=.o)
+MODULES=Draw.f08 QuadraticMap.f08
+MOD_OBJECTS=$(MODULES:.f08=.o)
+SOURCE=StrangelyAttractive.f08
+OBJECT=$(SOURCE:.f08=.o)
 
-StrangelyAttractive: $(OBJECTS)
-	$(FORTRAN) $(FFLAGS) $(LIBPGPLOT) -o StrangelyAttractive $(OBJECTS)
-
-$(OBJECTS): %.o: %.f08
+$(MOD_OBJECTS): %.o: %.f08
 	$(FORTRAN) $(FFLAGS) -c $< -o $@
 
+$(OBJECT): $(MOD_OBJECTS)
+	$(FORTRAN) $(FFLAGS) -c $(SOURCE) -o $@
+
+StrangelyAttractive: $(OBJECT) $(MOD_OBJECTS)
+	$(FORTRAN) $(FFLAGS) $(LIBPGPLOT) -o StrangelyAttractive $(OBJECT) $(MOD_OBJECTS)
+
 clean:
-	rm -rf StrangelyAttractive *.o
+	rm -rf StrangelyAttractive *.o *.mod
 
 run: all
 	PGPLOT_PNG_WIDTH=1680 PGPLOT_PNG_HEIGHT=1050 ./StrangelyAttractive

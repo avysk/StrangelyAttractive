@@ -1,4 +1,6 @@
 PROGRAM StrangelyAttractive
+USE QuadraticMap
+Use Draw
 IMPLICIT NONE
 
 ! Limits for equation coefficients
@@ -54,33 +56,6 @@ REAL :: l_exp1, l_exp2
 INTEGER :: i, n
 LOGICAL :: again = .TRUE.
 LOGICAL :: err = .FALSE.
-
-! Quadratic map
-INTERFACE QUADRATIC_STEP
-    PURE SUBROUTINE QUADRATIC_STEP(a, x, y)
-        REAL, DIMENSION(12), INTENT(IN) :: a
-        REAL, INTENT(INOUT) :: x, y
-    END SUBROUTINE QUADRATIC_STEP
-END INTERFACE QUADRATIC_STEP
-
-! And its linearization
-INTERFACE LINEAR_STEP
-    PURE SUBROUTINE LINEAR_STEP(a, x, y, e1, e2, n1, n2)
-        REAL, DIMENSION(12), INTENT(IN) :: a
-        REAL, INTENT(IN) :: x, y
-        REAL, DIMENSION(2), INTENT(INOUT) :: e1, e2
-        REAL, INTENT(OUT) :: n1, n2
-    END SUBROUTINE LINEAR_STEP
-END INTERFACE LINEAR_STEP
-
-! Drawing
-INTERFACE DRAW
-    FUNCTION DRAW(m, x, y)
-    LOGICAL DRAW
-    INTEGER, INTENT(IN) :: m
-    REAL, DIMENSION(:), INTENT(IN) :: x, y
-    END FUNCTION DRAW
-END INTERFACE DRAW
 
 seed: BLOCK
     INTEGER :: seed_size
@@ -187,9 +162,9 @@ main_loop: DO WHILE (again)
     WRITE (*, '(A)') '*****************************************************'
 
     ! We found it. Go to visualization.
-    again = DRAW(last_draw_iteration - init_iterations, &
-                 points_x(init_iterations+1:), &
-                 points_y(init_iterations+1:))
+    again = DRAW_POINTS(last_draw_iteration - init_iterations, &
+                        points_x(init_iterations+1:), &
+                        points_y(init_iterations+1:))
 
 END DO main_loop
 

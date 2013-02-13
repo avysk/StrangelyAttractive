@@ -1,7 +1,11 @@
-FUNCTION DRAW(m0, x, y)
+MODULE Draw
 IMPLICIT NONE
 
-    LOGICAL :: DRAW
+CONTAINS
+FUNCTION DRAW_POINTS(m0, x, y)
+IMPLICIT NONE
+
+    LOGICAL :: DRAW_POINTS
 
     INTEGER, INTENT(IN) :: m0
     REAL, DIMENSION(:), INTENT(IN) :: x, y
@@ -106,7 +110,7 @@ IMPLICIT NONE
                     do_init = .TRUE.
                     CALL PGCLOS
                 CASE ('q', 'Q')
-                    DRAW = .FALSE.
+                    DRAW_POINTS = .FALSE.
                     again = .FALSE.
                 CASE ('l', 'L')
                     WRITE (*, '(A)', ADVANCE='NO') 'Xmin: '
@@ -122,7 +126,7 @@ IMPLICIT NONE
                 CASE ('s', 'S')
                     do_box = .NOT. do_box
                 CASE DEFAULT
-                    DRAW = .TRUE.
+                    DRAW_POINTS = .TRUE.
                     again = .FALSE.
             END SELECT
         END BLOCK prompt
@@ -131,4 +135,5 @@ IMPLICIT NONE
 
     CALL PGEND
 
-END FUNCTION DRAW
+END FUNCTION DRAW_POINTS
+END MODULE Draw
