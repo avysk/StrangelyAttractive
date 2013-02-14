@@ -24,4 +24,7 @@ clean:
 run: all
 	PGPLOT_PNG_WIDTH=1680 PGPLOT_PNG_HEIGHT=1050 ./StrangelyAttractive
 
+# Gfortran manual said so
+%.o: %.mod
+
 .PHONY: all clean run
