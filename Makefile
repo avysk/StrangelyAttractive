@@ -19,4 +19,6 @@ clean:
 run: all
 	PGPLOT_PNG_WIDTH=1680 PGPLOT_PNG_HEIGHT=1050 ./StrangelyAttractive
 
+run-mac: all
+	PGPLOT_PNG_WIDTH=1280 PGPLOT_PNG_HEIGHT=800 PGPLOT_DEV='/AQT' ./StrangelyAttractive
 .PHONY: all clean run
