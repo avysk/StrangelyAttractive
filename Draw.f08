@@ -10,7 +10,7 @@ IMPLICIT NONE
     INTEGER, INTENT(IN) :: m0
     REAL, DIMENSION(:), INTENT(IN) :: x, y
 
-    ! How many data ponits we have
+    ! How many data points we have
     INTEGER :: n
     ! How many data points we want to draw
     INTEGER :: m

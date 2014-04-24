@@ -1,5 +1,4 @@
 FORTRAN=/opt/local/bin/gfortran
-#FFLAGS=-pedantic -Wall -std=f2008 -fimplicit-none -Ofast
 FFLAGS=-Wall -std=f2008 -fimplicit-none -Ofast
 LIBPGPLOT=-L/opt/local/lib -lpgplot
 
@@ -28,4 +27,6 @@ run: all
 # Gfortran manual said so
 %.o: %.mod
 
+run-mac: all
+	PGPLOT_PNG_WIDTH=1280 PGPLOT_PNG_HEIGHT=800 PGPLOT_DEV='/AQT' ./StrangelyAttractive
 .PHONY: all clean run

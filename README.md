@@ -7,7 +7,7 @@ To compile
 ----------
 
 0. make sure you have Fortran compiler with Fortran 2008 support. I know that
-   gfortran 4.5 doesn't work, and gfortran 4.7 works.
+   gfortran 4.5 doesn't work, and gfortran 4.8 works.
 1. install pgplot from http://www.astro.caltech.edu/~tjp/pgplot/ (or in any
    other way, like macports);
 2. edit top two lines in `Makefile`, specifying there your Fortran compiler and
@@ -28,7 +28,7 @@ directory.
 To change behaviour
 -------------------
 
-You can edit parameters in the beginning of `StrangelyAttractive.f95`:
+You can edit parameters in the beginning of `StrangelyAttractive.f08`:
 
 - `a_min` and `a_max` specify the range from where the quadratic map
   coefficients are randomly chosen
