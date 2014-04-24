@@ -1,5 +1,6 @@
-FORTRAN=/opt/local/bin/gfortran-mp-4.7
-FFLAGS=-pedantic -Wall -std=f2008 -fimplicit-none -Ofast
+FORTRAN=/opt/local/bin/gfortran
+#FFLAGS=-pedantic -Wall -std=f2008 -fimplicit-none -Ofast
+FFLAGS=-Wall -std=f2008 -fimplicit-none -Ofast
 LIBPGPLOT=-L/opt/local/lib -lpgplot
 
 all: StrangelyAttractive
