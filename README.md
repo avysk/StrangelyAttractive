@@ -1,7 +1,7 @@
 StrangelyAttractive
 ===================
 
-Fortran program to find chaotic-behaving 2d quadratic maps
+Fortran program to find chaotic-behaving 2d quadratic maps. Examples of pictures it can draw are in the end of this README file.
 
 To compile
 ----------
@@ -55,3 +55,9 @@ You may find the following environmental variables useful:
 - `PGPLOT_PNG_WIDTH` and `PGPLOT_PNG_HEIGHT` specify the size of PNG image
    (pgplot's default is 850 x 680)
 
+Examples
+--------
+
+![Example 1](/example1.png)
+
+![Example 2](/example2.png)
